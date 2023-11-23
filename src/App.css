@@ -57,4 +57,23 @@ form {
 
 button.form__btn {
     background-color: lightcoral;
+    border: 1px solid #888888;
+    color: white;
+}
+
+.btn--extract {
+    margin-top: 20px;
+    color: white;
+    background-color: #646cff;
+    border: 1px solid #888888;
+}
+
+.result {
+    color: darkred;
+}
+
+.video__data {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 64px;
 }

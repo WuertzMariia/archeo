@@ -1,9 +1,22 @@
-import React from "react";
+import React, {useEffect} from "react";
 import './App.css'
 import {useState} from "react";
 import {FileUploader} from "react-drag-drop-files";
 import {Lines} from "react-preloaders";
+import * as THREE from './three';
+import {OBJLoader} from './OBJLoader';
+import {OrbitControls} from './OrbitControls';
+import Chart from 'chart.js/auto'
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { CategoryScale } from "chart.js";
+import { Data } from "./Data";
+import BarChart from "./Bar";
+import BarChart1 from "./Bar1";
+// TODO add chart + data for chart
+// TODO run 3-4-5 images packages + time + memory
 
+Chart.register(CategoryScale);
+Chart.register(ChartDataLabels);
 
 function App() {
     const [file, setFile] = useState("");
@@ -11,15 +24,388 @@ function App() {
     const [videoMetaData, setVideoMetaData] = useState("");
     const [loading, setLoading] = useState(false);
     const [loadingArchive, setLoadingArchive] = useState(false);
+    const [chartData, setChartData] = useState({
+        datasets: [],
+    });
+    const [chartData2, setChartData2] = useState({
+        datasets: [],
+    });
 
-    // Creating a 3D model from a set of 2D images (or keyframes) is a complex task that involves a process called Structure from Motion (SfM). This process estimates the 3D structure of a scene from a set of 2D images taken from known viewpoints.
-    //
-    //     There are several libraries and tools available that can perform SfM, but most of them are GUI-based or require a significant amount of setup and configuration. As far as I know, there are no command-line tools available that can perform SfM and output a 3D model file directly.
-    //
-    //     One possible approach is to use a combination of tools to perform SfM and generate a 3D model. For example, you could use OpenMVG to perform SfM and generate a sparse reconstruction of the scene, and then use MeshLab to generate a dense reconstruction of the scene and save it as a 3D model file. However, this would still require a significant amount of setup and configuration, and it would not be a pure command-line solution.
-    //
-    //     Once you have a 3D model, you can load it into Three.js and count the number of faces. Here's a basic example of how you might load a 3D model in Three.js and count the number of faces:
-    //texturedMesh.obj
+    useEffect(() => {
+        setChartData({
+            // labels: Data.map((sampling) => [sampling.name, "Number of keyframes"]),
+            labels: Data.map((sampling) => [sampling.name]),
+            datasets: [{
+                label: "Keyframes",
+                data: Data.map((data) => data.keyframes),
+                fill: false,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                ],
+                borderColor: [
+                    'rgb(255, 99, 132)',
+                ],
+                borderWidth: 1
+            }, {
+                label: "Time (minutes)",
+                data: Data.map((data) => data.minutes),
+                backgroundColor: [
+                    'rgba(255, 159, 64, 0.2)',
+                ],
+                fill: false,
+                borderColor: [
+                    'rgb(255, 159, 64)',
+                ],
+                borderWidth: 1
+            }]
+        });
+
+        setChartData2({
+            labels: Data.map((sampling) => [sampling.name]),
+            datasets: [{
+                label: "Number of faces",
+                data: Data.map((data) => data.faces),
+                fill: false,
+                backgroundColor: [
+                    'rgba(153, 102, 255, 0.2)',
+                ],
+                borderColor: [
+                    'rgb(153, 102, 255)',
+                ],
+                borderWidth: 1
+            }]
+        });
+
+        let object;
+        init();
+
+        // eslint-disable-next-line no-inner-declarations
+        function init() {
+            const manager = new THREE.LoadingManager();
+
+            function onProgress(xhr) {
+                if (xhr.lengthComputable) {
+                    const percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log('model ' + percentComplete.toFixed(2) + '% downloaded');
+                }
+            }
+
+            function onError() {
+            }
+
+            const loader = new OBJLoader(manager);
+            // loader.load('src/assets/texturedMesh1.obj', function (obj) {
+            loader.load('src/assets/sauele_simple.obj', function (obj) {
+
+                object = obj;
+                const geometry1 = object.children[0].geometry;
+                console.log("GEOMETRY", geometry1)
+                            // Get the position attribute data
+                            const positionAttribute = geometry1.attributes.position;
+
+                            // Get the total number of vertices
+                            const totalVertices = positionAttribute.count;
+
+                            // Calculate the number of faces based on the total number of vertices
+                            const numberOfFaces1 = totalVertices / 3; // Assuming each face has three vertices
+
+            }, onProgress, onError);
+
+            loader.load('src/assets/sauele_full.obj', function (obj) {
+
+                object = obj;
+                const geometry1 = object.children[0].geometry;
+                console.log("GEOMETRY", geometry1)
+                // Get the position attribute data
+                const positionAttribute = geometry1.attributes.position;
+
+                // Get the total number of vertices
+                const totalVertices = positionAttribute.count;
+
+                // Calculate the number of faces based on the total number of vertices
+                const numberOfFaces2 = totalVertices / 3; // Assuming each face has three vertices
+
+
+            }, onProgress, onError);
+        }
+
+        // if (document.querySelectorAll(".three-js-container").length === 1 && document.querySelectorAll(".three-js-container canvas").length === 0) {
+        //     console.log("three.js test")
+        //     let camera, scene, renderer;
+        //
+        //     let object;
+        //
+        //     init();
+        //
+        //
+        //     // eslint-disable-next-line no-inner-declarations
+        //     function init() {
+        //
+        //         camera = new THREE.PerspectiveCamera(275, window.innerWidth / window.innerHeight, 0.1, 20);
+        //         camera.position.x = 1;
+        //         camera.position.z = 1;
+        //         camera.position.y = 1;
+        //
+        //         // scene
+        //
+        //         scene = new THREE.Scene();
+        //
+        //         const ambientLight = new THREE.AmbientLight(0xffffff);
+        //         scene.add(ambientLight);
+        //
+        //         const pointLight = new THREE.PointLight(0xffffff, 15);
+        //         camera.add(pointLight);
+        //         scene.add(camera);
+        //
+        //         // manager
+        //
+        //         function loadModel() {
+        //
+        //             object.traverse(function (child) {
+        //
+        //                 if (child.isMesh) child.material.map = texture;
+        //
+        //             });
+        //
+        //             object.scale.setScalar(3);
+        //             object.position.set(0,0,0); // Adjust the position as needed
+        //             object.rotation.set(-0.5, 3.0, -0.65); // Adjust the rotation as needed
+        //             //
+        //             // Access the geometry and get the number of faces
+        //             const geometry = object.children[0].geometry;
+        //             console.log("geometry:", object.children[0].geometry)
+        //             // Get the position attribute data
+        //             const positionAttribute = geometry.attributes.position;
+        //
+        //             // Get the total number of vertices
+        //             const totalVertices = positionAttribute.count;
+        //
+        //             // Calculate the number of faces based on the total number of vertices
+        //             const numberOfFaces = totalVertices / 3; // Assuming each face has three vertices
+        //             // Vertices:223.272
+        //             // Triangles:446.378
+        //             // Size X:3,18
+        //             // Size Y:2,12
+        //             // Size Z:1,53
+        //             console.log("Number of faces:", numberOfFaces);
+        //             console.log("Number of vertices:", totalVertices);
+        //             scene.add(object);
+        //
+        //             render();
+        //
+        //         }
+        //
+        //         const manager = new THREE.LoadingManager(loadModel);
+        //         // texture
+        //
+        //         const textureLoader = new THREE.TextureLoader(manager);
+        //         const texture = textureLoader.load('src/assets/sauele_simple.png', render);
+        //         texture.colorSpace = THREE.SRGBColorSpace;
+        //
+        //         // model
+        //
+        //         function onProgress(xhr) {
+        //
+        //             if (xhr.lengthComputable) {
+        //
+        //                 const percentComplete = xhr.loaded / xhr.total * 100;
+        //                 console.log('model ' + percentComplete.toFixed(2) + '% downloaded');
+        //
+        //             }
+        //
+        //         }
+        //
+        //         function onError() {
+        //         }
+        //
+        //         const loader = new OBJLoader(manager);
+        //         // loader.load('src/assets/male02.obj', function (obj) {
+        //         // loader.load('src/assets/texturedMesh1.obj', function (obj) {
+        //         loader.load('src/assets/sauele_simple.obj', function (obj) {
+        //
+        //             object = obj;
+        //             const geometry1 = object.children[0].geometry;
+        //             console.log("GEOMETRY aaaaa", geometry1)
+        //
+        //         }, onProgress, onError);
+        //
+        //
+        //
+        //         renderer = new THREE.WebGLRenderer({antialias: true});
+        //         renderer.setPixelRatio(window.devicePixelRatio);
+        //         renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.8);
+        //         let child = document.querySelector(".three-js-container").appendChild(renderer.domElement);
+        //         document.querySelector(".three-js-container").classList.add("is-visible")
+        //
+        //
+        //
+        //         const controls = new OrbitControls(camera, renderer.domElement);
+        //         controls.minDistance = 2;
+        //         controls.maxDistance = 5;
+        //         controls.addEventListener('change', render);
+        //
+        //
+        //
+        //         window.addEventListener('resize', onWindowResize);
+        //
+        //     }
+        //
+        //     // eslint-disable-next-line no-inner-declarations
+        //     function onWindowResize() {
+        //
+        //         camera.aspect = window.innerWidth / window.innerHeight;
+        //         camera.updateProjectionMatrix();
+        //
+        //         renderer.setSize(window.innerWidth, window.innerHeight);
+        //
+        //     }
+        //
+        //     // eslint-disable-next-line no-inner-declarations
+        //     function render() {
+        //
+        //         renderer.render(scene, camera);
+        //
+        //     }
+        // }
+        //
+        //
+        // if (document.querySelectorAll(".three-js-container_1").length === 1 && document.querySelectorAll(".three-js-container_1 canvas").length === 0) {
+        //     let camera, scene, renderer;
+        //
+        //     let object;
+        //
+        //     init();
+        //
+        //
+        //     // eslint-disable-next-line no-inner-declarations
+        //     function init() {
+        //
+        //         camera = new THREE.PerspectiveCamera(275, window.innerWidth / window.innerHeight, 0.1, 20);
+        //         camera.position.x = 1;
+        //         camera.position.z = 1;
+        //         camera.position.y = 1;
+        //
+        //         // scene
+        //
+        //         scene = new THREE.Scene();
+        //
+        //         const ambientLight = new THREE.AmbientLight(0xffffff);
+        //         scene.add(ambientLight);
+        //
+        //         const pointLight = new THREE.PointLight(0xffffff, 15);
+        //         camera.add(pointLight);
+        //         scene.add(camera);
+        //
+        //         // manager
+        //
+        //         function loadModel() {
+        //
+        //             object.traverse(function (child) {
+        //
+        //                 if (child.isMesh) child.material.map = texture;
+        //
+        //             });
+        //
+        //             object.scale.setScalar(1);
+        //             object.position.set(0,0,0); // Adjust the position as needed
+        //             object.rotation.set(0, 3.5, -0.2); // Adjust the rotation as needed
+        //             //
+        //             // Access the geometry and get the number of faces
+        //             const geometry = object.children[0].geometry;
+        //             console.log("geometry:", object.children[0].geometry)
+        //             // Get the position attribute data
+        //             const positionAttribute = geometry.attributes.position;
+        //
+        //             // Get the total number of vertices
+        //             const totalVertices = positionAttribute.count;
+        //
+        //             // Calculate the number of faces based on the total number of vertices
+        //             const numberOfFaces = totalVertices / 3; // Assuming each face has three vertices
+        //             // Vertices:223.272
+        //             // Triangles:446.378
+        //             // Size X:3,18
+        //             // Size Y:2,12
+        //             // Size Z:1,53
+        //             console.log("Number of faces:", numberOfFaces);
+        //             console.log("Number of vertices:", totalVertices);
+        //             scene.add(object);
+        //
+        //             render();
+        //
+        //         }
+        //
+        //         const manager = new THREE.LoadingManager(loadModel);
+        //
+        //         // texture
+        //
+        //         const textureLoader = new THREE.TextureLoader(manager);
+        //         const texture = textureLoader.load('src/assets/sauele_full_texure.png', render);
+        //         texture.colorSpace = THREE.SRGBColorSpace;
+        //
+        //         // model
+        //
+        //         function onProgress(xhr) {
+        //
+        //             if (xhr.lengthComputable) {
+        //
+        //                 const percentComplete = xhr.loaded / xhr.total * 100;
+        //                 console.log('model ' + percentComplete.toFixed(2) + '% downloaded');
+        //
+        //             }
+        //
+        //         }
+        //
+        //         function onError() {
+        //         }
+        //
+        //         const loader = new OBJLoader(manager);
+        //         // loader.load('src/assets/male02.obj', function (obj) {
+        //         loader.load('src/assets/sauele_full.obj', function (obj) {
+        //         // loader.load('src/assets/sauele1.obj', function (obj) {
+        //
+        //             object = obj;
+        //
+        //         }, onProgress, onError);
+        //
+        //         //
+        //
+        //         renderer = new THREE.WebGLRenderer({antialias: true});
+        //         renderer.setPixelRatio(window.devicePixelRatio);
+        //         renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.8);
+        //         let child = document.querySelector(".three-js-container_1").appendChild(renderer.domElement);
+        //         document.querySelector(".three-js-container_1").classList.add("is-visible")
+        //
+        //         //
+        //
+        //         const controls = new OrbitControls(camera, renderer.domElement);
+        //         controls.minDistance = 2;
+        //         controls.maxDistance = 5;
+        //         controls.addEventListener('change', render);
+        //
+        //         //
+        //
+        //         window.addEventListener('resize', onWindowResize);
+        //
+        //     }
+        //
+        //     // eslint-disable-next-line no-inner-declarations
+        //     function onWindowResize() {
+        //
+        //         camera.aspect = window.innerWidth / window.innerHeight;
+        //         camera.updateProjectionMatrix();
+        //
+        //         renderer.setSize(window.innerWidth, window.innerHeight);
+        //
+        //     }
+        //
+        //     // eslint-disable-next-line no-inner-declarations
+        //     function render() {
+        //
+        //         renderer.render(scene, camera);
+        //
+        //     }
+        // }
+    }, []);
 
     /**
      * Download frames
@@ -190,8 +576,11 @@ function App() {
                     <div className={"archive-box"}><button className="btn--extract" onClick={downloadFrames}>Create frames archive</button></div>}
 
                 </div>}
+                <div className={"acquisitions"}></div>
                 <div className={"three-js-container"}></div>
                 <div className={"three-js-container_1"}></div>
+                <BarChart chartData={chartData} plugins={[ChartDataLabels]} />
+                <BarChart1 chartData={chartData2} plugins={[ChartDataLabels]}/>
             </div>
         </React.Fragment>
     )

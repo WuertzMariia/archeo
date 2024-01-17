@@ -108,3 +108,8 @@ button.form__btn {
     visibility: visible;
     opacity: 1;
 }
+
+.chart-container {
+    width: 50vw !important;
+    margin-bottom: 48px;
+}

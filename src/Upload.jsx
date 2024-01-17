@@ -1,8 +1,9 @@
 import React from "react";
 import './App.css'
-import {useState, useEffect} from "react";
+import {useState} from "react";
 import {FileUploader} from "react-drag-drop-files";
 import {Lines} from "react-preloaders";
+
 
 function App() {
     const [file, setFile] = useState("");
@@ -10,6 +11,15 @@ function App() {
     const [videoMetaData, setVideoMetaData] = useState("");
     const [loading, setLoading] = useState(false);
     const [loadingArchive, setLoadingArchive] = useState(false);
+
+    // Creating a 3D model from a set of 2D images (or keyframes) is a complex task that involves a process called Structure from Motion (SfM). This process estimates the 3D structure of a scene from a set of 2D images taken from known viewpoints.
+    //
+    //     There are several libraries and tools available that can perform SfM, but most of them are GUI-based or require a significant amount of setup and configuration. As far as I know, there are no command-line tools available that can perform SfM and output a 3D model file directly.
+    //
+    //     One possible approach is to use a combination of tools to perform SfM and generate a 3D model. For example, you could use OpenMVG to perform SfM and generate a sparse reconstruction of the scene, and then use MeshLab to generate a dense reconstruction of the scene and save it as a 3D model file. However, this would still require a significant amount of setup and configuration, and it would not be a pure command-line solution.
+    //
+    //     Once you have a 3D model, you can load it into Three.js and count the number of faces. Here's a basic example of how you might load a 3D model in Three.js and count the number of faces:
+    //texturedMesh.obj
 
     /**
      * Download frames
@@ -53,7 +63,7 @@ function App() {
                     link.download = 'download';
                     link.innerHTML = "Frames.zip"
                     document.querySelector(".archive-box").appendChild(link);
-                    link.addEventListener("click", e => {
+                    link.addEventListener("click", () => {
                         // document.body.removeChild(link);
                         // URL.revokeObjectURL(objectUrl);
                     })
@@ -83,7 +93,8 @@ function App() {
                 },
                 body: JSON.stringify({
                     "file": file.path,
-                    "fileName": file.filename.substring(0, file.filename.indexOf("."))
+                    "fileName": file.filename.substring(0, file.filename.indexOf(".")),
+                    "duration": videoMetaData.durationInSeconds
                 }),
             })
                 .then((res) => res.json())
@@ -116,9 +127,10 @@ function App() {
     let submitVideo = async () => {
         event.preventDefault()
         try {
-            setArchiveName("")
             setLoading(true)
-
+            setArchiveName("")
+            setVideoMetaData("")
+            setFile("")
             // const fileInput = document.getElementById('input');
             let selectedFile;
             selectedFile = file1;
@@ -132,7 +144,6 @@ function App() {
                 .then((data) => {
                     setFile(data.file);
                     setVideoMetaData(data.videoMetaDataObj)
-                    console.log(videoMetaData)
                     setLoading(false)
                 });
 
@@ -143,11 +154,11 @@ function App() {
 
     return (
         <React.Fragment>
-            <div>
+            <div className={"main-content"}>
                 <FileUploader handleChange={handleChange} multiple={false} name="file" types={fileTypes}/>
                 <button className="form--margin form__btn" onClick={submitVideo}>Upload video</button>
                 {/*<form method="POST" action="http://localhost:3001/upload" encType="multipart/form-data">*/}
-                {/*<label className="form--margin" htmlFor="file">Choose video file</label>*/}
+                {/*<label className="form--margin" htmlFor="file">Choose video file</label>*/}                        
                 {/*<br/>*/}
                 {/*<input className="form--margin" type="file" name="file" id={"input"} accept="video/*" value={inputValue}*/}
                 {/*       onChange={e => {*/}
@@ -172,13 +183,15 @@ function App() {
                         <div><span className="video__data-meta">Height:</span> {videoMetaData.height}</div>
                         <div><span className="video__data-meta">Width:</span> {videoMetaData.width}</div>
                     </div>
-                    <button className="btn--extract" onClick={extractFrames}>Extract all frames from this video?
+                    <button className="btn--extract" onClick={extractFrames}>Extract frames and display resulting 3D Model
                         {loadingArchive && <div className={"video__data-preloader-archiv"}><Lines animation="slide-left"/></div>}
                     </button>
                     {archiveName.length > 0 &&
                     <div className={"archive-box"}><button className="btn--extract" onClick={downloadFrames}>Create frames archive</button></div>}
 
                 </div>}
+                <div className={"three-js-container"}></div>
+                <div className={"three-js-container_1"}></div>
             </div>
         </React.Fragment>
     )

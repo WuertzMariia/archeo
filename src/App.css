@@ -5,6 +5,11 @@
     text-align: center;
 }
 
+body {
+    overflow: scroll !important;
+    position: relative !important;
+}
+
 .form--margin {
     margin-bottom: 24px;
 }
@@ -89,4 +94,17 @@ button.form__btn {
     justify-content: flex-start;
     align-items: center;
     column-gap: 10px;
+}
+
+.three-js-container,
+.three-js-container_1 {
+    visibility: hidden;
+    opacity: 0;
+    margin-bottom: 50px;
+}
+
+.three-js-container.is-visible,
+.three-js-container_1.is-visible {
+    visibility: visible;
+    opacity: 1;
 }

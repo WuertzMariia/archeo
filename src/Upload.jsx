@@ -8,15 +8,54 @@ import {OBJLoader} from './OBJLoader';
 import {OrbitControls} from './OrbitControls';
 import Chart from 'chart.js/auto'
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { CategoryScale } from "chart.js";
-import { Data } from "./Data";
+import {CategoryScale} from "chart.js";
+import {Data} from "./Data";
 import BarChart from "./Bar";
 import BarChart1 from "./Bar1";
+import {
+    LinearScale,
+    PointElement,
+    LineElement,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+import {Scatter} from 'react-chartjs-2';
 // TODO add chart + data for chart
 // TODO run 3-4-5 images packages + time + memory
-
+Chart.register(LinearScale, PointElement, LineElement, Tooltip, Legend)
 Chart.register(CategoryScale);
 Chart.register(ChartDataLabels);
+export const options = {
+    plugins: {
+        datalabels: {
+            display: false
+        },
+    },
+    tooltips: {
+        callbacks: {
+            label: function (tooltipItem, data) {
+                // Customize the tooltip label here
+                return `test`;
+            },
+        },
+    },
+    scales: {
+        y: {
+            title: {
+                display: true,
+                text: 'Time building 3D model (in minutes)'
+            },
+            beginAtZero: true,
+        },
+        x: {
+            title: {
+                display: true,
+                text: 'Number of Keyframes'
+            },
+            beginAtZero: true,
+        },
+    },
+};
 
 function App() {
     const [file, setFile] = useState("");
@@ -34,34 +73,41 @@ function App() {
     useEffect(() => {
         setChartData({
             // labels: Data.map((sampling) => [sampling.name, "Number of keyframes"]),
-            labels: Data.map((sampling) => [sampling.name]),
-            datasets: [{
-                label: "Keyframes",
-                data: Data.map((data) => data.keyframes),
-                fill: false,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                ],
-                borderColor: [
-                    'rgb(255, 99, 132)',
-                ],
-                borderWidth: 1
-            }, {
-                label: "Time (minutes)",
-                data: Data.map((data) => data.minutes),
-                backgroundColor: [
-                    'rgba(255, 159, 64, 0.2)',
-                ],
-                fill: false,
-                borderColor: [
-                    'rgb(255, 159, 64)',
-                ],
-                borderWidth: 1
-            }]
+            // labels: Data.map((sampling) => [sampling.name]),
+            datasets: [
+                {
+                    label: "Keyframes",
+                    data: Data.map((data) => ({
+                        x: data.keyframes,
+                        y: Math.floor((data.milliseconds / 1000 / 60)),
+                    })),
+                    pointRadius: Data.map((sampling) => sampling.keyframes / 4),
+                    pointHoverRadius: Data.map((sampling) => sampling.keyframes / 3.7),
+                    fill: false,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 205, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(201, 203, 207, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 159, 64)',
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)',
+                        'rgb(54, 162, 235)',
+                        'rgb(153, 102, 255)',
+                        'rgb(201, 203, 207)'
+                    ],
+                    borderWidth: 1
+                }]
         });
 
         setChartData2({
-            labels: Data.map((sampling) => [sampling.name]),
+            labels: Data.map((sampling) => sampling.name),
             datasets: [{
                 label: "Number of faces",
                 data: Data.map((data) => data.faces),
@@ -100,14 +146,14 @@ function App() {
                 object = obj;
                 const geometry1 = object.children[0].geometry;
                 console.log("GEOMETRY", geometry1)
-                            // Get the position attribute data
-                            const positionAttribute = geometry1.attributes.position;
+                // Get the position attribute data
+                const positionAttribute = geometry1.attributes.position;
 
-                            // Get the total number of vertices
-                            const totalVertices = positionAttribute.count;
+                // Get the total number of vertices
+                const totalVertices = positionAttribute.count;
 
-                            // Calculate the number of faces based on the total number of vertices
-                            const numberOfFaces1 = totalVertices / 3; // Assuming each face has three vertices
+                // Calculate the number of faces based on the total number of vertices
+                const numberOfFaces1 = totalVertices / 3; // Assuming each face has three vertices
 
             }, onProgress, onError);
 
@@ -498,30 +544,26 @@ function App() {
         }
     }
     const fileTypes = ["mp4", "avi", "mpg", "mpg", "mov", "webm", "mkv", "mov", "wmv"];
-    const [file1, setFile1] = useState(null);
-    const handleChange = (file1) => {
-        setFile1(file1);
-        // setInputValue(file1)
+    const handleChange = (uploadedFile) => {
         setFile("")
         setArchiveName("")
+        submitVideo(uploadedFile)
     };
 
     /**
      * Sumbit video
      * @returns {Promise<void>}
      */
-    let submitVideo = async () => {
+    let submitVideo = async (uploadedFile) => {
         event.preventDefault()
         try {
             setLoading(true)
             setArchiveName("")
             setVideoMetaData("")
-            setFile("")
-            // const fileInput = document.getElementById('input');
-            let selectedFile;
-            selectedFile = file1;
+            console.log(uploadedFile, "selectedFile FILE 1")
+            console.log(uploadedFile, "selectedFile FILE 1")
             let data = new FormData()
-            data.append('file', selectedFile)
+            data.append('file', uploadedFile)
             await fetch("http://localhost:3001/upload", {
                 method: "POST",
                 body: data,
@@ -529,58 +571,106 @@ function App() {
                 .then((res) => res.json())
                 .then((data) => {
                     setFile(data.file);
+                    console.log(file, "file")
                     setVideoMetaData(data.videoMetaDataObj)
                     setLoading(false)
+                    document.querySelector(".form-container").classList.remove("is-disabled")
                 });
 
         } catch (error) {
-            console.error("Error:", error);
+            console.error("Error beim Upload:", error);
         }
     }
 
     return (
         <React.Fragment>
-            <div className={"main-content"}>
-                <FileUploader handleChange={handleChange} multiple={false} name="file" types={fileTypes}/>
-                <button className="form--margin form__btn" onClick={submitVideo}>Upload video</button>
-                {/*<form method="POST" action="http://localhost:3001/upload" encType="multipart/form-data">*/}
-                {/*<label className="form--margin" htmlFor="file">Choose video file</label>*/}                        
-                {/*<br/>*/}
-                {/*<input className="form--margin" type="file" name="file" id={"input"} accept="video/*" value={inputValue}*/}
-                {/*       onChange={e => {*/}
-                {/*           setInputValue(e.target.value)*/}
-                {/*           setFile("")*/}
-                {/*           setArchiveName("")*/}
-                {/*       }}/>*/}
-                {/*<br/>*/}
-                {/*</form>*/}
-                {loading && <div className={"video__data-preloader"}><Lines/></div>}
-                {file.path &&
-                <div className="video__data">
-                    <h2>Video Meta Data</h2>
-                    <div className={"video__data-wrapper"}>
-                        <div><span className="video__data-meta">Original Name:</span> {file.originalname}</div>
-                        <div><span className="video__data-meta">File Name:</span> {file.filename}</div>
-                        <div><span className="video__data-meta">Path:</span> {file.path}</div>
-                        <div><span className="video__data-meta">FPS:</span> {videoMetaData.fps}</div>
-                        <div><span
-                            className="video__data-meta">Duration in Seconds:</span> {videoMetaData.durationInSeconds}
-                        </div>
-                        <div><span className="video__data-meta">Height:</span> {videoMetaData.height}</div>
-                        <div><span className="video__data-meta">Width:</span> {videoMetaData.width}</div>
+            <div className={"main-content montserrat-300"}>
+                <header className="header-main">
+                    <div className="header-logo">
+                        <h2>AutoMeshCraft</h2>
                     </div>
-                    <button className="btn--extract" onClick={extractFrames}>Extract frames and display resulting 3D Model
-                        {loadingArchive && <div className={"video__data-preloader-archiv"}><Lines animation="slide-left"/></div>}
-                    </button>
-                    {archiveName.length > 0 &&
-                    <div className={"archive-box"}><button className="btn--extract" onClick={downloadFrames}>Create frames archive</button></div>}
+                    <div className="navigation-main">
+                        <nav>
+                            <a href="#">Home</a>
+                            <a href="#">Anleitung</a>
+                            <a href="#">Projekt</a>
+                            <a href="#">Kontakt</a>
+                        </nav>
+                    </div>
+                </header>
+                <div className="content">
+                    <div className={"overview"}>
+                        <p className={"montserrat-500"}>
+                            Sie suchen eine professionelle und benutzerfreundliche Anwendung für die videobasierte
+                            3D-Rekonstruktion?
+                        </p>
 
-                </div>}
-                <div className={"acquisitions"}></div>
-                <div className={"three-js-container"}></div>
-                <div className={"three-js-container_1"}></div>
-                <BarChart chartData={chartData} plugins={[ChartDataLabels]} />
-                <BarChart1 chartData={chartData2} plugins={[ChartDataLabels]}/>
+                        <p className={"montserrat-500"}>
+                            Beginnen Sie jetzt mit dem Hochladen Ihres Videos!
+                        </p>
+                    </div>
+                    <FileUploader handleChange={handleChange} multiple={false} name="file" types={fileTypes}/>
+                    {/*<button className="form--margin form__btn" id={"validateBtn"} onClick={submitVideo}>Video validieren</button>*/}
+
+                    <p className={"notice"}> Hinweis: Die Einstellungen für die 3D-Rekonstruktion werden nach dem
+                        Video-Upload und Validierung aktiviert
+                    </p>
+
+                    <div className="form-container is-disabled">
+                        <h5>Methode für die Keyframes Extraktion:</h5>
+                        <form encType="multipart/form-data" className={"key_data_form"}>
+                            <select name="options" id="options" className={"montserrat-500"}>
+                                <option value="festeZahl">Feste Bildauswahl</option>
+                                <option value="JKeyFramer">JKeyFramer</option>
+                            </select>
+                            <div className={"form-control"}>
+                                <label htmlFor="fname">FPS</label>
+                                <input type="text" value={1} placeholder={"Geben Sie die Anzahl der FPS an"}/>
+                            </div>
+                        </form>
+                    </div>
+                    {/*<form method="POST" action="http://localhost:3001/upload" encType="multipart/form-data">*/}
+                    {/*<label className="form--margin" htmlFor="file">Choose video file</label>*/}
+                    {/*<br/>*/}
+                    {/*<input className="form--margin" type="file" name="file" id={"input"} accept="video/*" value={inputValue}*/}
+                    {/*       onChange={e => {*/}
+                    {/*           setInputValue(e.target.value)*/}
+                    {/*           setFile("")*/}
+                    {/*           setArchiveName("")*/}
+                    {/*       }}/>*/}
+                    {/*<br/>*/}
+                    {/*</form>*/}
+                    {loading && <div className={"video__data-preloader"}><Lines/></div>}
+                    {file.path &&
+                    <div className="video__data">
+                        <h2>Video Meta Data</h2>
+                        <div className={"video__data-wrapper"}>
+                            <div><span className="video__data-meta">Name:</span> {file.originalname}</div>
+                            <div><span className="video__data-meta">Name mit dem Timestamp:</span> {file.filename}</div>
+                            <div><span className="video__data-meta">Pfad:</span> {file.path}</div>
+                            <div><span className="video__data-meta">FPS:</span> {videoMetaData.fps}</div>
+                            <div><span
+                                className="video__data-meta">Dauer in Sekunden:</span> {videoMetaData.durationInSeconds}
+                            </div>
+                            <div><span className="video__data-meta">Höhe:</span> {videoMetaData.height}</div>
+                            <div><span className="video__data-meta">Breite:</span> {videoMetaData.width}</div>
+                        </div>
+                        <button className="btn--extract" onClick={extractFrames}>3D Modell aus dem Video erstellen
+                            {loadingArchive &&
+                            <div className={"video__data-preloader-archiv"}><Lines animation="slide-left"/></div>}
+                        </button>
+                        {archiveName.length > 0 &&
+                        <div className={"archive-box"}>
+                            <button className="btn--extract" onClick={downloadFrames}>Create frames archive</button>
+                        </div>}
+
+                    </div>}
+                    <div className={"acquisitions"}></div>
+                    <div className={"three-js-container"}></div>
+                    <div className={"three-js-container_1"}></div>
+                    <Scatter options={options} data={chartData} plugins={[ChartDataLabels]}/>
+                    <BarChart1 chartData={chartData2} plugins={[ChartDataLabels]}/>
+                </div>
             </div>
         </React.Fragment>
     )

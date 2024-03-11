@@ -5,21 +5,107 @@
     text-align: center;
 }
 
+.montserrat-300 {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.form-container.is-disabled {
+    opacity: 0.5;
+}
+
+.key_data_form {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    row-gap: 20px;
+}
+
+.key_data_form .form-control {
+    display: flex;
+    flex-direction: row;
+    column-gap: 12px;
+    align-items: center;
+    align-content: center;
+}
+
+.key_data_form .form-control label {
+    font-size: 16px;
+}
+
+h5 {
+    text-align: start;
+    margin-bottom: 8px;
+}
+
+p.notice {
+    font-style: italic;
+    font-size: 14px;
+    text-align: start;
+    color: red;
+}
+.key_data_form .form-control input {
+    margin-top: 0;
+    border: 1px solid #00b1ea;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+#validateBtn {
+    height: 0;
+    opacity: 0;
+    visibility: hidden;
+}
+.montserrat-500 {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+}
+
 body {
     overflow: scroll !important;
     position: relative !important;
 }
 
+.header-main {
+    background: #002542;
+    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.3);
+    min-height: 150px;
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+}
+
+.navigation-main {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    padding-right: 50px;
+}
+
+.header-logo {
+    padding-left: 50px;
+}
+
+.header-main h2 {
+    color: white;
+}
+
+.header-main a {
+    color: white;
+    padding: 0 16px;
+    font-size: 20px;
+}
+
 .form--margin {
     margin-bottom: 24px;
-}
-
-input {
-    margin-top: 24px;
-}
-
-form {
-    font-size: 30px;
 }
 
 button.form__btn {
@@ -27,6 +113,7 @@ button.form__btn {
     background-color: white;
     border: 1px solid #00b1ea;
     margin-top: 32px;
+    width: fit-content;
 }
 
 .btn--extract {
@@ -112,4 +199,25 @@ button.form__btn {
 .chart-container {
     width: 50vw !important;
     margin-bottom: 48px;
+    margin-top: 48px;
+}
+
+.main-content .content {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    padding-top: 170px;
+}
+
+.content .overview {
+    margin-bottom: 64px;
+}
+
+select {
+    width: fit-content;
+    padding: 12px;
+    color: #002542;
+    border: 1px solid #00b1ea;
+    border-radius: 5px;
+    font-size: 16px;
 }

@@ -7,6 +7,11 @@ import * as THREE from './three';
 import {OBJLoader} from './OBJLoader';
 import {OrbitControls} from './OrbitControls';
 import Chart from 'chart.js/auto';
+import Header from "./component/Header";
+import {Routes, BrowserRouter as Router, Route} from "react-router-dom";
+import About from "./pages/Account";
+import Users from "./component/Overview";
+
 function App() {
     const [loading, setLoading] = React.useState(null);
 
@@ -33,10 +38,12 @@ function App() {
 
 
     return (
-        <React.Fragment>
-            <Upload/>
-            <Lines customLoading={loading}/>
-        </React.Fragment>
+        <Router>
+            <Routes>
+                <Route exact path="/" element={<Upload />}/>
+                <Route exact path="/account" element={<About />}/>
+            </Routes>
+        </Router>
     );
 }
 

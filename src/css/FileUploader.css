@@ -1,0 +1,19 @@
+.file-uploader {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.file-uploader label {
+    min-width: 70%;
+}
+
+.file-uploader label span {
+    color: #002542;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.file-uploader label  .file-types {
+    max-width: 100%;
+}

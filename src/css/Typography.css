@@ -1,0 +1,32 @@
+.montserrat-300 {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.montserrat-500 {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+}
+
+h5 {
+    text-align: start;
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+
+.material-symbols-outlined {
+    cursor: pointer;
+    color: white;
+    font-size: 45px;
+    font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+}

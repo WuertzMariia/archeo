@@ -11,16 +11,6 @@ import './css/Typography.css'
 import {useState} from "react";
 import {FileUploader} from "react-drag-drop-files";
 import {Lines} from "react-preloaders";
-import Chart from 'chart.js/auto'
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-import {CategoryScale} from "chart.js";
-import {
-    LinearScale,
-    PointElement,
-    LineElement,
-    Tooltip,
-    Legend,
-} from 'chart.js';
 import Header from "./component/Header";
 import Overview from "./component/Overview";
 import VideoData from "./component/VideoMetaData";
@@ -28,18 +18,16 @@ import Model from "./component/Model";
 import ImgSelectionSettingsForm from "./component/ImgSelectionSettingsForm";
 import StartPageActionWidget from "./component/StartPageActionWidget";
 
-Chart.register(LinearScale, PointElement, LineElement, Tooltip, Legend)
-Chart.register(CategoryScale);
-Chart.register(ChartDataLabels);
+
 
 const fileTypes = ["mp4", "avi", "mpg", "mpg", "mov", "webm", "mkv", "mov", "wmv"];
 
-function App() {
+function Home() {
     const [file, setFile] = useState("");
     const [videoMetaData, setVideoMetaData] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const handleChange = (uploadedFile) => {
+    const handleUpload = (uploadedFile) => {
         setFile("")
         submitVideo(uploadedFile)
     };
@@ -53,10 +41,8 @@ function App() {
         try {
             setLoading(true)
             setVideoMetaData("")
-            console.log(uploadedFile, "selectedFile FILE 1")
-            console.log(uploadedFile, "selectedFile FILE 1")
             let data = new FormData()
-            data.append('file', uploadedFile)
+            data.append("file", uploadedFile)
             await fetch("http://localhost:3001/upload", {
                 method: "POST",
                 body: data,
@@ -64,7 +50,6 @@ function App() {
                 .then((res) => res.json())
                 .then((data) => {
                     setFile(data.file);
-                    console.log(file, "file")
                     setVideoMetaData(data.videoMetaDataObj)
                     setLoading(false)
                 });
@@ -77,21 +62,18 @@ function App() {
     return (
         <React.Fragment>
             <div className={"main-content montserrat-300"}>
-                <Header/>
-                <div className="content">
                     <Overview/>
                     <div className={"file-uploader"}>
-                        <FileUploader handleChange={handleChange} multiple={false} name="file" types={fileTypes}/>
+                        <FileUploader handleChange={handleUpload} multiple={false} name="file" types={fileTypes}/>
                     </div>
                     {file.path && <VideoData file={file} videoMetaData={videoMetaData}/>}
                     {file.path && <ImgSelectionSettingsForm file={file} videoMetaData={videoMetaData}/>}
                     {loading && <div className={"video__data-preloader"}><Lines/></div>}
                     <Model/>
                     <StartPageActionWidget/>
-                </div>
             </div>
         </React.Fragment>
     )
 }
 
-export default App
+export default Home

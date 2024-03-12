@@ -14,3 +14,11 @@
     width: 30%;
     padding: 15px;
 }
+
+
+.btn--primary {
+    color: white;
+    background-color: #002542;
+    border: 1px solid #00b1ea;
+    padding: 15px;
+}

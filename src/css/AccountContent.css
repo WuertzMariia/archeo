@@ -1,3 +1,52 @@
 .account-content {
-    margin-top: 170px;
+    margin-top: 120px;
+    display: flex;
+    flex-direction: column;
+    column-gap: 120px;
+}
+
+.form-account {
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.account-navigation {
+    min-width: 250px;
+    background-color: #F1F1F1;
+    position: absolute;
+    width: 100vw;
+    left: 0;
+}
+
+.account-navigation nav {
+    display: flex;
+    flex-direction: row;
+    column-gap: 20px;
+    text-align: start;
+    margin-left: 50px;
+}
+
+.account-data {
+    margin-top: 50px;
+}
+
+.account-navigation nav a.active {
+    text-decoration: underline;
+}
+.account-navigation nav a {
+    color: #002542;
+    opacity: 0.9;
+    font-size: 16px;
+    margin: 12px 0;
+}
+
+.form-account .btn--primary {
+    margin-top: 32px;
+}
+
+.account-navigation
+li::marker {
+    color: #002542;
 }

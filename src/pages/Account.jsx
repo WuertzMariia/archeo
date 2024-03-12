@@ -6,6 +6,9 @@ import BarChart1 from "../Bar1";
 // import {options} from "../Upload";
 import {Data} from "../Data";
 import Header from "../component/Header";
+import Chart from "chart.js/auto";
+import {CategoryScale, Legend, LinearScale, LineElement, PointElement, Tooltip} from "chart.js";
+import {Link} from "react-router-dom";
 
 export const options = {
     plugins: {
@@ -24,21 +27,23 @@ export const options = {
         y: {
             title: {
                 display: true,
-                text: 'Time building 3D model (in minutes)'
+                text: 'Laufzeit in Minuten'
             },
             beginAtZero: true,
         },
         x: {
             title: {
                 display: true,
-                text: 'Number of Keyframes'
+                text: 'Anzahl von Keyframes'
             },
             beginAtZero: true,
         },
     },
 };
-
-function Overview() {
+Chart.register(LinearScale, PointElement, LineElement, Tooltip, Legend)
+Chart.register(CategoryScale);
+Chart.register(ChartDataLabels);
+function Account() {
     const [chartData, setChartData] = useState({
         datasets: [],
     });
@@ -49,7 +54,7 @@ function Overview() {
         setChartData({
             datasets: [
                 {
-                    label: "Keyframes",
+                    label: "Laufzeit je Bildpaket",
                     data: Data.map((data) => ({
                         x: data.keyframes,
                         y: Math.floor((data.milliseconds / 1000 / 60)),
@@ -82,7 +87,7 @@ function Overview() {
         setChartData2({
             labels: Data.map((sampling) => sampling.name),
             datasets: [{
-                label: "Number of faces",
+                label: "Anzahl von Faces",
                 data: Data.map((data) => data.faces),
                 fill: false,
                 backgroundColor: [
@@ -97,13 +102,87 @@ function Overview() {
     }, []);
     return (
         <React.Fragment>
-            <Header/>
             <div className={"account-content"}>
-                <Scatter options={options} data={chartData} plugins={[ChartDataLabels]}/>
-                <BarChart1 chartData={chartData2} plugins={[ChartDataLabels]}/>
+                <div className={"account-navigation"}>
+                    <nav className={"montserrat-300"}>
+                        <Link to="/account/profil">Profil</Link>
+                        <Link to="/account/profil" className={"active"}>Ihre 3D-Modelle</Link>
+                    </nav>
+                </div>
+                <div className={"account-data"}>
+                    <h5>Ihre 3D-Modelle:</h5>
+                    <form className={"form-account montserrat-300"}>
+                        <div>
+                            <input
+                                type="checkbox"
+                                checked
+                                id="1"
+                                name="1"
+                                value="Sauele_0_34"/>
+                            <label htmlFor="Sauele_0_34">Sauele_0_34</label>
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                checked
+                                id="1"
+                                name="1"
+                                value="Sauele_0_51"/>
+                            <label htmlFor="Sauele_0_51">Sauele_0_51</label>
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                checked
+                                id="1"
+                                name="1"
+                                value="Sauele_0_64"/>
+                            <label htmlFor="Sauele_0_64">Sauele_0_64</label>
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                checked
+                                id="1"
+                                name="1"
+                                value="Sauele_0_85"/>
+                            <label htmlFor="Sauele_0_85">Sauele_0_85</label>
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                checked
+                                id="1"
+                                name="1"
+                                value="Sauele_0_128"/>
+                            <label htmlFor="Sauele_0_128">Sauele_0_128</label>
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                checked
+                                id="1"
+                                name="1"
+                                value="Sauele_0_134"/>
+                            <label htmlFor="Sauele_0_134">Sauele_0_134</label>
+                        </div>
+                        <div>
+                            <input
+                                type="checkbox"
+                                checked
+                                id="1"
+                                name="1"
+                                value="Sauele_0_192"/>
+                            <label htmlFor="Sauele_0_192">Sauele_0_192</label>
+                        </div>
+                        <button type="submit" className={"btn--primary"}>3D-Modelle evaluieren</button>
+                    </form>
+                    <Scatter options={options} data={chartData} plugins={[ChartDataLabels]}/>
+                    <BarChart1 chartData={chartData2} plugins={[ChartDataLabels]}/>
+                </div>
             </div>
         </React.Fragment>
     )
 }
 
-export default Overview
+export default Account

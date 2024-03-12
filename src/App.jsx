@@ -1,32 +1,31 @@
-import React, {useEffect} from "react";
+import React from "react";
 import './App.css'
-import Upload from "./Upload";
-import {Lines} from "react-preloaders";
-// Use the correct import path for the 'three' module
-import * as THREE from './three';
-import {OBJLoader} from './OBJLoader';
-import {OrbitControls} from './OrbitControls';
-import Chart from 'chart.js/auto';
-import Header from "./component/Header";
 import {Routes, BrowserRouter as Router, Route} from "react-router-dom";
-import About from "./pages/Account";
-import Users from "./component/Overview";
+import Home from "./Home";
+import Account from "./pages/Account";
+import Chart from "chart.js/auto";
+import {CategoryScale, Legend, LinearScale, LineElement, PointElement, Tooltip} from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import {Lines} from "react-preloaders";
+import Header from "./component/Header";
+Chart.register(LinearScale, PointElement, LineElement, Tooltip, Legend)
+Chart.register(CategoryScale);
+Chart.register(ChartDataLabels);
 
 function App() {
-    const [loading, setLoading] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
 
     /**
      * Server check
      */
     React.useEffect(() => {
         try {
-            console.log("FETCH")
             fetch("http://localhost:3001/api", {
                 method: "GET",
                 mode: 'cors',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                    'Accept': 'application/json'
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    "Accept": "application/json"
                 }
 
             })
@@ -39,10 +38,12 @@ function App() {
 
     return (
         <Router>
+            <Header/>
             <Routes>
-                <Route exact path="/" element={<Upload />}/>
-                <Route exact path="/account" element={<About />}/>
+                <Route exact path="/" element={<Home loading={loading}/>}/>
+                <Route exact path="/account" element={<Account />}/>
             </Routes>
+            {loading && <Lines/>}
         </Router>
     );
 }

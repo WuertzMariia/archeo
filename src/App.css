@@ -14,14 +14,14 @@ body {
     color: darkred;
 }
 
-.main-content .content {
+.main-content {
     display: flex;
     justify-content: flex-start;
     flex-direction: column;
     padding-top: 170px;
 }
 
-.content .overview {
+.main-content .overview {
     margin-bottom: 64px;
 }
 
